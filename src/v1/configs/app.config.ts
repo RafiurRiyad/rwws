@@ -16,6 +16,6 @@ export const AppConfig = {
   port: API_PORT,
   host: API_HOST,
   protocol: API_PROTOCOL,
-  baseRoute: `${ROUTE_PREFIX}${API_VERSION}`,
+  baseRoute: `${ROUTE_PREFIX}/${API_VERSION}`,
   jwtSecret: JWT_SECRET,
 };
