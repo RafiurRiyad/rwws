@@ -1,14 +1,28 @@
 import Joi from "joi";
-import { Role } from "../enums/role.enum";
 
 export const SignInRequestBody = Joi.object({
   email: Joi.string().email().max(200).required(),
   password: Joi.string().min(8).max(200).required(),
 });
 
-export const SignUpRequestBody = Joi.object({
-  email: Joi.string().email().max(200).required(),
-  user_type: Joi.string()
-    .valid(Role.ADMIN, Role.SUB_ADMIN, Role.MODERATOR)
+export const ChangePasswordRequestBody = Joi.object({
+  oldPassword: Joi.string()
+    .min(8)
+    .max(200)
+    .pattern(
+      new RegExp(
+        "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$"
+      )
+    )
+    .required(),
+
+  newPassword: Joi.string()
+    .min(8)
+    .max(200)
+    .pattern(
+      new RegExp(
+        "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$"
+      )
+    )
     .required(),
 });

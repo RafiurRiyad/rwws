@@ -5,7 +5,12 @@ import { tokenGenerator } from "../helpers/tokenGenerator.helper";
 import { UserDAO } from "../dao/user.dao";
 import { InternalServerError } from "../errors/internalServer.error";
 import { Success } from "../responses/http.response";
-import { sanitizeLoginTokenResponse } from "../utilities/user.utility";
+import {
+  generateRandomValidPassword,
+  isValidPassword,
+  sanitizeLoginTokenResponse,
+} from "../utilities/user.utility";
+import { invalidateToken } from "../helpers/tokenExpiration.helper";
 
 const userDAO = new UserDAO();
 
@@ -61,6 +66,229 @@ const signIn = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
+// const signOut = async (req: Request, res: Response, next: NextFunction) => {
+//   try {
+//     const token = req.headers["authorization"]?.split(" ")[1]; // Get the token from the Authorization header
+
+//     if (!token) {
+//       throw new BadRequestError(
+//         "signOut-no-token",
+//         "No token provided, please log in",
+//         3003
+//       );
+//     }
+
+//     // Call the invalidateSession method with the token from header
+//     const result = await invalidateToken(token, "your-secret-key");
+
+//     return Success(res, {
+//       message: "sign out successful",
+//       data: null,
+//     });
+//   } catch (error: any) {
+//     error.origin = error.origin ? error.origin : "signOut-base-error";
+//     error.message = error.message ? error.message : "SignOut error";
+//     error.code = error.code ? error.code : 3004;
+//     next(error);
+//   }
+// };
+
+const changePassword = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    /**
+     * * get {userId, oldPassword, newPassword} from request body
+     */
+    const { userId, oldPassword, newPassword } = req.body;
+
+    /**
+     * * check if userId exists, if not send 400 BadRequestError
+     * @function BadRequestError
+     * @param {origin, message, code}
+     */
+    const userInfo = await userDAO.findOneById(userId);
+    Logger.debug("changePassword-userInfo: %s", userInfo);
+    if (!userInfo) {
+      throw new BadRequestError(
+        "changePassword-user-not-found",
+        "User not found, please log in again",
+        3005
+      );
+    }
+
+    /**
+     * * compare the oldPassword with the current password in the database
+     * * if password doesn't match, send 400 BadRequestError
+     * @function BadRequestError
+     * @param {origin, message, code}
+     */
+    const isOldPasswordValid = await userInfo.validatePassword(oldPassword);
+    Logger.debug("changePassword-oldPasswordValid: %s", isOldPasswordValid);
+    if (!isOldPasswordValid) {
+      throw new BadRequestError(
+        "changePassword-wrong-old-password",
+        "Old password is incorrect",
+        3006
+      );
+    }
+
+    /**
+     * * validate the newPassword (e.g., check length, complexity)
+     * * if not valid, send 400 BadRequestError
+     */
+    if (!isValidPassword(newPassword)) {
+      throw new BadRequestError(
+        "changePassword-invalid-new-password",
+        "New password does not meet the required criteria",
+        3007
+      );
+    }
+
+    /**
+     * * update the password in the database
+     */
+    userInfo.password = await userInfo.hashPassword(newPassword);
+
+    const userSaveResponse = await userDAO.save(userInfo);
+    Logger.debug("changePassword-password-updated");
+
+    return Success(res, {
+      message: "Password changed successfully",
+      data: userSaveResponse,
+    });
+  } catch (error: any) {
+    error.origin = error.origin ? error.origin : "changePassword-base-error";
+    error.message = error.message ? error.message : "Error changing password";
+    error.code = error.code ? error.code : 3008;
+    next(error);
+  }
+};
+
+const forgotPassword = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    /**
+     * * get {email} from request body
+     */
+    const { email } = req.body;
+
+    /**
+     * * check if user email exists in the database
+     * * if email exists, generate a new valid temporary password and store it in the temp_pass column
+     */
+    const userInfo = await userDAO.findOneByEmail(email);
+    Logger.debug("forgotPassword-userInfo: %s", userInfo);
+
+    if (userInfo) {
+      /**
+       * * Generate a random valid password:
+       * * - 16 characters long
+       * * - Contains only uppercase and lowercase letters and numbers
+       */
+      const tempPassword = generateRandomValidPassword();
+      Logger.debug("forgotPassword-tempPassword: %s", tempPassword);
+
+      /**
+       * * Update the user's temp_pass column with the new temporary password
+       */
+      userInfo.temp_pass = tempPassword;
+      await userDAO.save(userInfo);
+      Logger.debug("forgotPassword-tempPassword-updated");
+
+      /**
+       * * Send an email with the temporary password (simulated here)
+       */
+      // await emailService.sendPasswordResetEmail(userInfo.email, tempPassword);
+      // Logger.debug("forgotPassword-email-sent");
+    }
+
+    /**
+     * * Always respond with a success message regardless of whether the user exists or not
+     */
+    return Success(res, {
+      message: "Successfully sent a mail for resetting password",
+      data: null,
+    });
+  } catch (error: any) {
+    error.origin = error.origin ? error.origin : "forgotPassword-base-error";
+    error.message = error.message ? error.message : "Forgot password error";
+    error.code = error.code ? error.code : 3009;
+    next(error);
+  }
+};
+
+const resetPassword = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    /**
+     * * get {email, temp_pass} from request body
+     */
+    const { email, temp_pass } = req.body;
+
+    /**
+     * * Check if the user with the given email exists
+     */
+    const userInfo = await userDAO.findOneByEmail(email);
+    Logger.debug("resetPassword-userInfo: %s", userInfo);
+
+    if (!userInfo) {
+      throw new BadRequestError(
+        "resetPassword-email-not-found",
+        "Email not registered",
+        3010
+      );
+    }
+
+    /**
+     * * Check if temp_pass matches the stored temp_pass in the database
+     */
+    const isTempPassValid = temp_pass === userInfo.temp_pass;
+    Logger.debug("resetPassword-isTempPassValid: %s", isTempPassValid);
+
+    if (!isTempPassValid) {
+      throw new BadRequestError(
+        "resetPassword-invalid-temp-pass",
+        "Temporary password is not correct",
+        3011
+      );
+    }
+
+    /**
+     * * If temp_pass is valid, update the user's password with temp_pass and set temp_pass to null
+     */
+    userInfo.password = temp_pass;
+    userInfo.temp_pass = null;
+    await userDAO.save(userInfo);
+    Logger.debug("resetPassword-password-updated");
+
+    /**
+     * * Respond with success message
+     */
+    return Success(res, {
+      message: "Password has been reset successfully",
+      data: null,
+    });
+  } catch (error: any) {
+    error.origin = error.origin ? error.origin : "resetPassword-base-error";
+    error.message = error.message ? error.message : "Reset password error";
+    error.code = error.code ? error.code : 3012;
+    next(error);
+  }
+};
+
 export const authController = {
   signIn,
+  // signOut,
+  changePassword,
+  forgotPassword,
+  resetPassword,
 };

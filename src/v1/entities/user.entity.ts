@@ -22,6 +22,9 @@ export class User {
   @Column({ type: "varchar", length: 100, nullable: true })
   username!: string;
 
+  @Column({ type: "varchar", nullable: true })
+  temp_pass!: string | null;
+
   @CreateDateColumn({ type: "timestamp" })
   created_at!: Date;
 

@@ -10,10 +10,9 @@ export const tokenGenerator = async (
   try {
     const accessToken = jwt.sign(
       {
-        id: user.uuid,
-        role: user.role,
-        type: "token",
-        payload: "", // carry additional info if needed
+        id: user.id,
+        type: "access",
+        payload: "",
       },
       AppConfig.jwtSecret,
       {
@@ -23,10 +22,9 @@ export const tokenGenerator = async (
 
     const refreshToken = jwt.sign(
       {
-        id: user.uuid,
-        role: user.role,
+        id: user.id,
         type: "refresh",
-        payload: "", // carry additional info if needed
+        payload: "",
       },
       AppConfig.jwtSecret,
       {
