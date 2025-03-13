@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { authController } from "../controllers/auth.controller";
 import { ValidateSignInRequestBody } from "../middlewares/validateSignInRequestBody.middleware";
+import { verifyJwtToken } from "../middlewares/verifyJwtToken.middleware";
 
 const authRouter = Router();
 
@@ -10,7 +11,7 @@ const authRouter = Router();
 authRouter.post("/signin", [ValidateSignInRequestBody], authController.signIn);
 authRouter.post(
   "/change-password",
-  [ValidateSignInRequestBody],
+  [verifyJwtToken],
   authController.changePassword
 );
 authRouter.post("/forgot-password", authController.forgotPassword);
