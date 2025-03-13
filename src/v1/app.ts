@@ -5,7 +5,7 @@ import bodyParser from "body-parser";
 import cors from "cors";
 import SwaggerUI from "swagger-ui-express";
 
-import { AuthRoutes } from "./routes";
+import { AuthRoutes, NewsRoutes } from "./routes";
 import { InitiateRwwsDataSourcePluginConnection } from "./plugins/datasource.plugin";
 import { HttpLogger } from "./loggers/httpLogger";
 import { AppConfig } from "./configs/app.config";
@@ -13,6 +13,7 @@ import { ErrorLogger } from "./middlewares/errorLogger.middleware";
 import { ErrorHandler } from "./middlewares/errorHandler.middleware";
 import { InvalidPath } from "./middlewares/invalidPath.middleware";
 import { docs } from "./docs";
+import path from "path";
 
 /**
  * * initiate express and express community middleware
@@ -22,13 +23,16 @@ const app = express();
 app.use(HttpLogger);
 app.use(express.json());
 app.use(
-  bodyParser.urlencoded({
-    extended: true,
-  })
+    bodyParser.urlencoded({
+        extended: true,
+    })
 );
 app.use(bodyParser.json({ limit: "1mb" }));
 app.use(bodyParser.urlencoded({ limit: "1mb", extended: true }));
 app.use(cors());
+
+/* serve static assets */
+app.use(express.static(path.join(__dirname, "../../../public")));
 
 /**
  * * Initialize database connection
@@ -39,16 +43,17 @@ InitiateRwwsDataSourcePluginConnection();
  * * A basic health check route above all the routes for checking if the application is running
  */
 app.get(`${baseRoute}/health`, (req, res) => {
-  res.status(200).json({
-    message: "Basic Health Check.",
-    environment: process.env.NODE_ENV,
-  });
+    res.status(200).json({
+        message: "Basic Health Check.",
+        environment: process.env.NODE_ENV,
+    });
 });
 
 /**
  * * Route injection to the app module
  */
 app.use(`${baseRoute}/auth`, AuthRoutes);
+app.use(`${baseRoute}/news`, NewsRoutes);
 
 /**
  * * Route injection for swagger documentation

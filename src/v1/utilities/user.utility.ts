@@ -1,3 +1,4 @@
+import { UserDAO } from "../dao/user.dao";
 import { User } from "../entities/user.entity";
 import { TokenProviderResponse } from "../interfaces/tokenProviderResponse.interface";
 
@@ -60,28 +61,20 @@ export const generateRandomValidPassword = (): Promise<string> => {
       password += allChars[Math.floor(Math.random() * allChars.length)];
     }
 
-    /**
-     * * Shuffle the password to avoid predictable pattern
-     */
-    const shuffledPassword = password
-      .split("")
-      .sort(() => 0.5 - Math.random())
-      .join("");
-
-    resolve(shuffledPassword);
-  });
+  return password
+    .split("")
+    .sort(() => 0.5 - Math.random())
+    .join(""); // shuffle to avoid predictable pattern
 };
 
-export const generateUserEntityObject = (
-  email: string,
-  password: string,
-  username: string,
-  tempPass: string | null
-) => {
-  const user = new User();
-  user.email = email;
-  user.password = password;
-  user.username = username;
-  user.temp_pass = tempPass;
-  return user;
-};
+// export const createNewUser = async () => {
+//     const userDAO = new UserDAO();
+//     const user = new User();
+//     user.email = `test@example.com`;
+//     user.password = await user.hashPassword(`123456`); // Hash the password
+//     user.username = `asif`;
+//     user.temp_pass = null;
+//     user.created_at = new Date();
+
+//     userDAO.save(user);
+// };

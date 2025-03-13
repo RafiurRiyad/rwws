@@ -198,7 +198,7 @@ const changePassword = async (
      * @function BadRequestError
      * @param {origin, message, code}
      */
-    const userInfo = await userDAO.findOneById(userId);
+  const userInfo = await userDAO.findOneById(userId);
     Logger.debug("changePassword-userInfo: %s", userInfo);
     if (!userInfo) {
       throw new BadRequestError(
