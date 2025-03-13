@@ -3,16 +3,98 @@ import { Logger } from "../loggers/logger";
 import { BadRequestError } from "../errors/badRequest.error";
 import { tokenGenerator } from "../helpers/tokenGenerator.helper";
 import { UserDAO } from "../dao/user.dao";
-import { InternalServerError } from "../errors/internalServer.error";
 import { Success } from "../responses/http.response";
 import {
   generateRandomValidPassword,
+  generateUserEntityObject,
   isValidPassword,
   sanitizeLoginTokenResponse,
 } from "../utilities/user.utility";
-import { invalidateToken } from "../helpers/tokenExpiration.helper";
+import { sendPasswordResetEmail } from "../utilities/emailSender.utility";
+import { sign } from "crypto";
 
 const userDAO = new UserDAO();
+
+/**
+ * * Sign up a new user with provided email and username
+ * * Generate a random password and send it via email
+ * @function signup
+ * @param {Request} req - Express request object containing email and username
+ * @param {Response} res - Express response object for sending the result
+ * @param {NextFunction} next - Express middleware function for error handling
+ */
+export const signUp = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    /**
+     * * get {email, username} from request body
+     */
+    const { email, username } = req.body;
+
+    /**
+     * * check if email already exists, send 400 BadRequestError
+     * @function BadRequestError
+     * @param {origin, message, code}
+     */
+    const existingUser = await userDAO.findOneByEmail(email);
+    if (existingUser) {
+      throw new BadRequestError(
+        "signup-email-exists",
+        "This email is already registered",
+        3001
+      );
+    }
+
+    /**
+     * * generate a random password with 16 characters (characters and numbers only)
+     * * as per the password generation rule
+     */
+    const randomPassword = await generateRandomValidPassword(); // Utility to generate a password
+
+    /**
+     * * create a new user in the database
+     * * set the temporary password for the user
+     * * use hashed password before saving
+     */
+
+    const user = generateUserEntityObject(
+      email,
+      randomPassword,
+      username,
+      null
+    );
+
+    user.password = await user.hashPassword(user.password);
+    const newUser = await userDAO.save(user);
+
+    /**
+     * * send the generated password to the user's email address
+     */
+    await sendPasswordResetEmail(email, randomPassword);
+
+    /**
+     * * respond with a success message and send only email and username
+     */
+    return Success(res, {
+      message: "User created successfully",
+      data: {
+        email: newUser.email,
+        username: newUser.username,
+      },
+    });
+  } catch (error: any) {
+    /**
+     * * error handling with origin and default values for error object
+     */
+    error.origin = error.origin ? error.origin : "signup-base-error";
+    error.message = error.message ? error.message : "Signup process failed";
+    error.code = error.code ? error.code : 3000;
+    next(error);
+  }
+};
 
 const signIn = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -139,7 +221,7 @@ const changePassword = async (
      * * validate the newPassword (e.g., check length, complexity)
      * * if not valid, send 400 BadRequestError
      */
-    if (!isValidPassword(newPassword)) {
+    if (!(await isValidPassword(newPassword))) {
       throw new BadRequestError(
         "changePassword-invalid-new-password",
         "New password does not meet the required criteria",
@@ -191,7 +273,7 @@ const forgotPassword = async (
        * * - 16 characters long
        * * - Contains only uppercase and lowercase letters and numbers
        */
-      const tempPassword = generateRandomValidPassword();
+      const tempPassword = await generateRandomValidPassword();
       Logger.debug("forgotPassword-tempPassword: %s", tempPassword);
 
       /**
@@ -204,8 +286,8 @@ const forgotPassword = async (
       /**
        * * Send an email with the temporary password (simulated here)
        */
-      // await emailService.sendPasswordResetEmail(userInfo.email, tempPassword);
-      // Logger.debug("forgotPassword-email-sent");
+      await sendPasswordResetEmail(userInfo.email, tempPassword);
+      Logger.debug("forgotPassword-email-sent");
     }
 
     /**
@@ -267,6 +349,8 @@ const resetPassword = async (
      */
     userInfo.password = temp_pass;
     userInfo.temp_pass = null;
+    userInfo.password = await userInfo.hashPassword(userInfo.password);
+
     await userDAO.save(userInfo);
     Logger.debug("resetPassword-password-updated");
 
@@ -286,6 +370,7 @@ const resetPassword = async (
 };
 
 export const authController = {
+  signUp,
   signIn,
   // signOut,
   changePassword,

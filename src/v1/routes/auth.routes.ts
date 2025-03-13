@@ -5,6 +5,8 @@ import { verifyJwtToken } from "../middlewares/verifyJwtToken.middleware";
 
 const authRouter = Router();
 
+authRouter.post("/signup", authController.signUp);
+
 /**
  * * user sign in route
  */
