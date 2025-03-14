@@ -1,16 +1,17 @@
 import nodemailer from "nodemailer";
+import { AppConfig } from "../configs/app.config";
 
 /**
  * * Configure the email transporter using SMTP details
  * @host, @port, @auth - SMTP configuration from environment variables
  */
 const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST, // Your SMTP host (e.g., 'smtp.gmail.com')
-  port: parseInt(process.env.EMAIL_PORT || "587"), // Port (587 for TLS, 465 for SSL)
-  secure: process.env.EMAIL_SECURE === "true", // true for 465, false for other ports
+  host: AppConfig.emailHost, // Your SMTP host (e.g., 'smtp.gmail.com')
+  port: parseInt(AppConfig.emailPort || "587"), // Port (587 for TLS, 465 for SSL)
+  secure: AppConfig.emailSecure === "true", // true for 465, false for other ports
   auth: {
-    user: process.env.EMAIL_USER, // Email username from environment variables
-    pass: process.env.EMAIL_PASSWORD, // Email password from environment variables
+    user: AppConfig.emailUser, // Email username from environment variables
+    pass: AppConfig.emailPassword, // Email password from environment variables
   },
 });
 
@@ -31,7 +32,7 @@ export const sendSignUpEmail = async (
      * * Mail options including sender, recipient, subject, and content (both text and HTML)
      */
     const mailOptions = {
-      from: process.env.EMAIL_FROM, // Sender email (e.g., 'no-reply@yourdomain.com')
+      from: AppConfig.emailFrom,
       to: email, // Recipient email
       subject: "Welcome to Our Platform!", // Subject of the email
       text: `Dear ${username},\n\nWelcome to Our Platform!\n\nYour account has been successfully created. Below are your login details:\n\nUsername: ${username}\nPassword: ${password}\n\nPlease log in and change your password for security purposes.\n\nThank you for joining us!\n\nBest regards,\nYour Company Team`, // Plain text body

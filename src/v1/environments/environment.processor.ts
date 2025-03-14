@@ -23,6 +23,14 @@ export const parsedEnvironment = {
   DB_SYNCHRONIZER: process.env.DB_SYNCHRONIZER as string,
   DB_LOGGING: process.env.DB_LOGGING as string,
 
+  // Email variables
+  EMAIL_HOST: process.env.EMAIL_HOST as string,
+  EMAIL_PORT: process.env.EMAIL_PORT as string,
+  EMAIL_SECURE: process.env.EMAIL_SECURE as string,
+  EMAIL_USER: process.env.EMAIL_USER as string,
+  EMAIL_PASSWORD: process.env.EMAIL_PASSWORD as string,
+  EMAIL_FROM: process.env.EMAIL_FROM as string,
+
   // Internal service environment variables
   BASE_PATH: process.env.BASE_PATH as string,
 
