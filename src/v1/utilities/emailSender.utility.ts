@@ -8,7 +8,7 @@ import { AppConfig } from "../configs/app.config";
 const transporter = nodemailer.createTransport({
   host: AppConfig.emailHost, // Your SMTP host (e.g., 'smtp.gmail.com')
   port: parseInt(AppConfig.emailPort || "587"), // Port (587 for TLS, 465 for SSL)
-  secure: AppConfig.emailSecure === "true", // true for 465, false for other ports
+  secure: AppConfig.emailSecure === "false", // true for 465, false for other ports
   auth: {
     user: AppConfig.emailUser, // Email username from environment variables
     pass: AppConfig.emailPassword, // Email password from environment variables
@@ -42,7 +42,7 @@ export const sendSignUpEmail = async (
              <p>Username: <strong>${username}</strong><br/>Password: <strong>${password}</strong></p>
              <p>Please log in and change your password as soon as possible for security purposes.</p>
              <p>Thank you for joining us!</p>
-             <p>Best regards,<br/>Your Company Team</p>`, // HTML body
+             <p>Best regards,<br/>RWWS Team</p>`, // HTML body
     };
 
     /**
@@ -84,7 +84,7 @@ export const sendPasswordResetEmail = async (
              <p>Your temporary password is: <strong>${tempPassword}</strong>.</p>
              <p>Please use this password to log in and reset your password as soon as possible for security purposes.</p>
              <p>If you did not request a password reset, please contact support immediately.</p>
-             <p>Best regards,<br/>Your Company Team</p>`, // HTML body
+             <p>Best regards,<br/>RWWS Team</p>`, // HTML body
     };
 
     /**
