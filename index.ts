@@ -32,7 +32,8 @@ if (process.env.NODE_ENV !== "production") {
  * * and then proceed with process.exit(exitCode)
  */
 const graceFullyCloseServerAndPluginConnections = (exitCode: number) => {
-  App.close(() => {
+  const server = App.listen();
+  server.close(() => {
     Logger.debug("Closing the Server...");
     DestroyRwwsDataSourcePluginConnection();
     Logger.debug(`Closing the main process with exitCode: ${exitCode}`);

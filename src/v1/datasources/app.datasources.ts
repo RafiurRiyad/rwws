@@ -4,7 +4,7 @@ import { DataSource } from "typeorm";
 import { User } from "../entities/user.entity";
 
 export const RwwsDataSource = new DataSource({
-  type: RwwsDBConfig.type,
+  type: "postgres",
   host: RwwsDBConfig.host,
   port: RwwsDBConfig.port,
   username: RwwsDBConfig.username,
@@ -14,4 +14,7 @@ export const RwwsDataSource = new DataSource({
   logging: RwwsDBConfig.logging,
   entities: [User],
   subscribers: [],
+  ssl: {
+    rejectUnauthorized: false, // Set to true if you have a trusted certificate
+  },
 });
