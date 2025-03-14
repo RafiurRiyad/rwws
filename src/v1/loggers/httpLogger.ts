@@ -20,15 +20,15 @@ export const HttpLogger = morgan(JSON.stringify(format), {
     write: (message: string) => {
       const { method, url, status, resContentLength, responseTime } =
         JSON.parse(message);
-      if (url !== "/v1/health") console.log("health is down");
-      // Logger.info("HTTP-Request-Log", {
-      //   timestamp: new Date(),
-      //   method,
-      //   url,
-      //   status: Number(status),
-      //   responseTime: Number(responseTime),
-      //   resContentLength,
-      // });
+      if (url !== "/v1/health")
+        Logger.info("HTTP-Request-Log", {
+          timestamp: new Date(),
+          method,
+          url,
+          status: Number(status),
+          responseTime: Number(responseTime),
+          resContentLength,
+        });
     },
   },
 });
