@@ -6,26 +6,33 @@ import { DestroyRwwsDataSourcePluginConnection } from "./src/v1/plugins/datasour
 const { port, host, environment } = AppConfig;
 
 /**
- * * create express server with port and host imported form app.config
+ * * Export the Express app directly for Vercel to handle
  */
+export default App;
 
-export const Server = App.listen(Number(port), host, () => {
-  Logger.debug("Express is running on →");
-  console.table({
-    host: host,
-    port: port,
-    environment: environment,
+/**
+ * * create express server with port and host imported from app.config
+ * * This will only run when deployed in environments where Vercel is not handling the server (local environments).
+ */
+if (process.env.NODE_ENV !== "production") {
+  App.listen(Number(port), host, () => {
+    Logger.debug("Express is running on →");
+    console.table({
+      host: host,
+      port: port,
+      environment: environment,
+    });
   });
-});
+}
 
 /**
  * * this method is for gracefully closing the express server(node.js process)
  * @function graceFullyCloseServerAndPluginConnections(exitCode)
- * * this function will first close the http server and then close mogoDB and redis plugin connection
+ * * this function will first close the http server and then close MongoDB and Redis plugin connections
  * * and then proceed with process.exit(exitCode)
  */
 const graceFullyCloseServerAndPluginConnections = (exitCode: number) => {
-  Server.close(() => {
+  App.close(() => {
     Logger.debug("Closing the Server...");
     DestroyRwwsDataSourcePluginConnection();
     Logger.debug(`Closing the main process with exitCode: ${exitCode}`);
@@ -33,27 +40,7 @@ const graceFullyCloseServerAndPluginConnections = (exitCode: number) => {
   });
 };
 /**
- * * This event is emitted when there is any uncaughtException in the code.
- * * this will log the uncaughtException error in the error logger and proceed to
- * *  process.exit with exitCode = 1. Which means the process exited with error
- */
-process.on("uncaughtException", (error) => {
-  Logger.error("uncaughtException-error:", error);
-  process.exit(1);
-});
-/**
- * * This event is emitted when there is any unhandledRejection in the code.
- * * this will log the unhandledRejection error in the error logger and proceed to
- * *  process.exit with exitCode = 1. Which means the process exited with error
- */
-process.on("unhandledRejection", (reason, promise) => {
-  Logger.error("unhandledRejection-at %s, %s", promise, `reason: ${reason}`);
-  process.exit(1);
-});
-/**
- * * on these events like SIGINT, SIGUSR1, SIGUSR2, SIGTERM this will also proceed to
- * * graceFullyCloseServerAndPluginConnections with exitCode = 0. Which means the process exited without error
- * @function graceFullyCloseServerAndPluginConnections(exitCode)
+ * * Handle various process events for graceful shutdown
  */
 [`SIGINT`, `SIGUSR1`, `SIGUSR2`, `SIGTERM`].forEach((event) => {
   process.on(event, () => {
@@ -61,15 +48,21 @@ process.on("unhandledRejection", (reason, promise) => {
     graceFullyCloseServerAndPluginConnections(0);
   });
 });
-/**
- * * logs the beforeExit event log
- */
+
+process.on("uncaughtException", (error) => {
+  Logger.error("uncaughtException-error:", error);
+  process.exit(1);
+});
+
+process.on("unhandledRejection", (reason, promise) => {
+  Logger.error("unhandledRejection-at %s, %s", promise, `reason: ${reason}`);
+  process.exit(1);
+});
+
 process.on("beforeExit", (code) => {
   Logger.debug(`Process beforeExit event with code: ${code}`);
 });
-/**
- * * logs the exit event log
- */
+
 process.on("exit", (code) => {
   Logger.debug(`Process exit event with code: ${code}`);
 });
