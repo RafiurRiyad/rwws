@@ -1,10 +1,10 @@
 import { NextFunction, Request, Response } from "express";
-import jwt from "jsonwebtoken";
+import jwt, { JwtPayload } from "jsonwebtoken";
 import { UnauthorizedError } from "../errors/unauthorized.error";
 import { AppConfig } from "../configs/app.config";
 
 // Middleware to verify JWT token
-export const verifyJwtToken = (
+export const VerifyJwtToken = (
   req: Request,
   res: Response,
   next: NextFunction
@@ -23,8 +23,8 @@ export const verifyJwtToken = (
     const token = authHeader.split(" ")[1]; // Get the actual token after "Bearer"
 
     // Verify token using jwt.verify
-    const decodedToken = jwt.verify(token, AppConfig.jwtSecret as string);
-    // req.user = decodedToken; // Attach the decoded token to the request object
+    const decodedToken = jwt.verify(token, AppConfig.jwtSecret);
+    res.locals.userId = (decodedToken as JwtPayload).id;
 
     next(); // Proceed to the next middleware or route handler
   } catch (error: any) {

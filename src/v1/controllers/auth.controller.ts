@@ -10,7 +10,10 @@ import {
   isValidPassword,
   sanitizeLoginTokenResponse,
 } from "../utilities/user.utility";
-import { sendPasswordResetEmail } from "../utilities/emailSender.utility";
+import {
+  sendPasswordResetEmail,
+  sendSignUpEmail,
+} from "../utilities/emailSender.utility";
 import { sign } from "crypto";
 
 const userDAO = new UserDAO();
@@ -73,7 +76,7 @@ export const signUp = async (
     /**
      * * send the generated password to the user's email address
      */
-    await sendPasswordResetEmail(email, randomPassword);
+    await sendSignUpEmail(email, username, randomPassword);
 
     /**
      * * respond with a success message and send only email and username
@@ -182,9 +185,14 @@ const changePassword = async (
 ) => {
   try {
     /**
-     * * get {userId, oldPassword, newPassword} from request body
+     * * get {oldPassword, newPassword} from request body
      */
-    const { userId, oldPassword, newPassword } = req.body;
+    const { oldPassword, newPassword } = req.body;
+
+    /**
+     * * get userId from request locals
+     */
+    const userId = res.locals.userId;
 
     /**
      * * check if userId exists, if not send 400 BadRequestError
@@ -312,9 +320,9 @@ const resetPassword = async (
 ) => {
   try {
     /**
-     * * get {email, temp_pass} from request body
+     * * get {email, tempPass} from request body
      */
-    const { email, temp_pass } = req.body;
+    const { email, tempPass } = req.body;
 
     /**
      * * Check if the user with the given email exists
@@ -331,9 +339,9 @@ const resetPassword = async (
     }
 
     /**
-     * * Check if temp_pass matches the stored temp_pass in the database
+     * * Check if tempPass matches the stored tempPass in the database
      */
-    const isTempPassValid = temp_pass === userInfo.temp_pass;
+    const isTempPassValid = tempPass === userInfo.tempPass;
     Logger.debug("resetPassword-isTempPassValid: %s", isTempPassValid);
 
     if (!isTempPassValid) {
@@ -345,9 +353,9 @@ const resetPassword = async (
     }
 
     /**
-     * * If temp_pass is valid, update the user's password with temp_pass and set temp_pass to null
+     * * If tempPass is valid, update the user's password with tempPass and set tempPass to null
      */
-    userInfo.password = temp_pass;
+    userInfo.password = tempPass;
     userInfo.temp_pass = null;
     userInfo.password = await userInfo.hashPassword(userInfo.password);
 

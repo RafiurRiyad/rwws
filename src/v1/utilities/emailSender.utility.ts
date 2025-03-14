@@ -6,12 +6,12 @@ import { AppConfig } from "../configs/app.config";
  * @host, @port, @auth - SMTP configuration from environment variables
  */
 const transporter = nodemailer.createTransport({
-  host: AppConfig.emailHost, // Your SMTP host (e.g., 'smtp.gmail.com')
-  port: parseInt(AppConfig.emailPort || "587"), // Port (587 for TLS, 465 for SSL)
-  secure: AppConfig.emailSecure === "false", // true for 465, false for other ports
+  host: AppConfig.emailHost, // SMTP host from config
+  port: parseInt(AppConfig.emailPort), // Port from config (convert to number)
+  secure: AppConfig.emailSecure === "true", // True for ssl (e.g., 465), false for other ports
   auth: {
-    user: AppConfig.emailUser, // Email username from environment variables
-    pass: AppConfig.emailPassword, // Email password from environment variables
+    user: AppConfig.emailUser, // Email username from config
+    pass: AppConfig.emailPassword, // Email password from config
   },
 });
 
@@ -76,7 +76,7 @@ export const sendPasswordResetEmail = async (
      * * Mail options including sender, recipient, subject, and content (both text and HTML)
      */
     const mailOptions = {
-      from: process.env.EMAIL_FROM, // Sender email (e.g., 'no-reply@yourdomain.com')
+      from: AppConfig.emailFrom, // Sender email (e.g., 'no-reply@yourdomain.com')
       to: email, // Recipient email
       subject: "Password Reset Request", // Subject of the email
       text: `Your temporary password is: ${tempPassword}. Please use this password to log in and reset your password immediately.`, // Plain text body
@@ -99,6 +99,7 @@ export const sendPasswordResetEmail = async (
      * * Log the error and throw a new error
      */
     console.error("Error sending password reset email: ", error);
+    console.log(error);
     throw new Error("Failed to send password reset email");
   }
 };
