@@ -9,9 +9,11 @@ export class NewsDAO {
     }
 
     async findOneById(id: string): Promise<News | null> {
-        return await this.newsRepo.findOneBy({
-            id: id,
-        });
+        return await this.newsRepo
+            .createQueryBuilder("news")
+            .leftJoinAndSelect("news.category", "category") // 👈 JOIN Category
+            .where("news.id = :id", { id })
+            .getOne();
     }
 
     async save(news: News): Promise<News> {

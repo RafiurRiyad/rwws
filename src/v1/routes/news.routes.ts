@@ -1,15 +1,16 @@
 import { Router } from "express";
 import { newsController } from "../controllers/news.controller";
 import { Upload } from "../plugins/upload.plugin";
-import { ValidateCreateNewsRequestBody } from "../middlewares/validateNewsRequestBody.middleware";
+import { ValidateCreateNewsRequestBody as ValidateNewsRequestBody } from "../middlewares/validateNewsRequestBody.middleware";
 
 const newsRouter = Router();
 
-newsRouter.get("/", [], newsController.getAll)
-newsRouter.post(
-    "/",
-    [Upload.single("image"), ValidateCreateNewsRequestBody],
-    newsController.createOne
+newsRouter.get("/", [], newsController.getAll);
+newsRouter.post("/", [Upload.single("image"), ValidateNewsRequestBody], newsController.createOne);
+newsRouter.put(
+    "/:newsId",
+    [Upload.single("image"), ValidateNewsRequestBody],
+    newsController.updateOne
 );
 
 newsRouter.get("/:newsId", [], newsController.getOne);

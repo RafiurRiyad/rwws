@@ -1,11 +1,14 @@
 import { UserDAO } from "../dao/user.dao";
 import { News } from "../entities/news.entity";
+import { CategoryType } from "../enums/categoryType.enum";
 import { BadRequestError } from "../errors/badRequest.error";
+import { CategoryRepository } from "../repositories/category.repository";
 
 const userDAO = new UserDAO();
 
-export const generateNewsEntityObject = async (requestBodyObj: News): Promise<News> => {
+export const generateNewsEntityObject = async (requestBodyObj: any): Promise<News> => {
     const user = await userDAO.findOneByEmail("test@example.com");
+
     if (!user) {
         throw new BadRequestError(
             "generateNewsEntityObject-for-create-news",
@@ -13,11 +16,60 @@ export const generateNewsEntityObject = async (requestBodyObj: News): Promise<Ne
             3014
         );
     }
+
+    const category = await CategoryRepository.findOneBy({
+        id: requestBodyObj.category_id,
+        type: CategoryType.NEWS,
+    });
+    if (!category) {
+        throw new BadRequestError(
+            "generateNewsEntityObject-for-create-news",
+            "News category not found",
+            3015
+        );
+    }
+
     const news = new News();
     news.title = requestBodyObj.title;
     news.excerpt = requestBodyObj.excerpt;
     news.image = requestBodyObj.image;
     news.created_by = user.id;
+    news.category = category;
+
+    return news;
+};
+
+export const generateUpdatedNewsEntityObject = async (
+    updatedRequestBody: any,
+    news: News
+): Promise<News> => {
+    const user = await userDAO.findOneByEmail("test@example.com");
+
+    if (!user) {
+        throw new BadRequestError(
+            "generateNewsEntityObject-for-create-news",
+            "User not found",
+            3014
+        );
+    }
+
+    const category = await CategoryRepository.findOneBy({
+        id: updatedRequestBody.category_id,
+        type: CategoryType.NEWS,
+    });
+    if (!category) {
+        throw new BadRequestError(
+            "generateNewsEntityObject-for-create-news",
+            "News category not found",
+            3015
+        );
+    }
+
+    news.title = updatedRequestBody.title;
+    news.excerpt = updatedRequestBody.excerpt;
+    news.image = updatedRequestBody.image;
+    news.created_by = user.id;
+    news.category = category;
 
     return news;
 };

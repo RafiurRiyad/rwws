@@ -9,6 +9,7 @@ import {
     UpdateDateColumn,
 } from "typeorm";
 import { User } from "./user.entity";
+import { Category } from "./category.entity";
 
 @Entity()
 export class News {
@@ -22,7 +23,11 @@ export class News {
     excerpt!: string;
 
     @Column({ type: "varchar", length: 500, nullable: true })
-    image!: string | null;
+    image!: string;
+
+    @ManyToOne(() => Category, { nullable: true })
+    @JoinColumn({ name: "category_id" })
+    category!: Category;
 
     @Column({ type: "bigint", nullable: false })
     created_by!: bigint;
