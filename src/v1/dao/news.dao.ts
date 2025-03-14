@@ -11,7 +11,8 @@ export class NewsDAO {
     async findOneById(id: string): Promise<News | null> {
         return await this.newsRepo
             .createQueryBuilder("news")
-            .leftJoinAndSelect("news.category", "category") // 👈 JOIN Category
+            .leftJoinAndSelect("news.category", "category")
+            .leftJoinAndSelect("news.createdBy", "createdBy")
             .where("news.id = :id", { id })
             .getOne();
     }

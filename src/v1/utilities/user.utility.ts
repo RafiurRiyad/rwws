@@ -1,5 +1,3 @@
-import { UserDAO } from "../dao/user.dao";
-import { User } from "../entities/user.entity";
 import { TokenProviderResponse } from "../interfaces/tokenProviderResponse.interface";
 
 export const sanitizeLoginTokenResponse = (
@@ -65,6 +63,7 @@ export const generateRandomValidPassword = (): Promise<string> => {
     .split("")
     .sort(() => 0.5 - Math.random())
     .join(""); // shuffle to avoid predictable pattern
+  });
 };
 
 // export const createNewUser = async () => {

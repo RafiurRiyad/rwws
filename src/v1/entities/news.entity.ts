@@ -4,7 +4,6 @@ import {
     Entity,
     JoinColumn,
     ManyToOne,
-    OneToMany,
     PrimaryGeneratedColumn,
     UpdateDateColumn,
 } from "typeorm";
@@ -29,8 +28,9 @@ export class News {
     @JoinColumn({ name: "category_id" })
     category!: Category;
 
-    @Column({ type: "bigint", nullable: false })
-    created_by!: bigint;
+    @ManyToOne(() => User, { nullable: false })
+    @JoinColumn({ name: "created_by" })
+    createdBy!: User;
 
     @CreateDateColumn({ type: "timestamp" })
     created_at!: Date;

@@ -29,6 +29,8 @@ const createOne = async (req: Request, res: Response, next: NextFunction) => {
         }
 
         createRequest.image = path.join("/uploads/", req.file.filename);
+        createRequest.current_user = res.locals.user;
+
         const newsEntityObj = await generateNewsEntityObject(createRequest);
 
         const createdNews = await newsDao.save(newsEntityObj);
@@ -59,10 +61,9 @@ const getAll = async (req: Request, res: Response, next: NextFunction) => {
             );
         }
 
-        const queryBuilder = NewsRepository.createQueryBuilder("news").innerJoinAndSelect(
-            "news.category",
-            "category"
-        );
+        const queryBuilder = NewsRepository.createQueryBuilder("news")
+            .innerJoinAndSelect("news.category", "category")
+            .innerJoinAndSelect("news.createdBy", "createdBy");
 
         if (categoryId) {
             queryBuilder.where("category.id = :categoryId", { categoryId });
