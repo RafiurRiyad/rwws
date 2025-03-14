@@ -1,7 +1,6 @@
 import { Repository } from "typeorm";
 import { User } from "../entities/user.entity";
 import { UserRepository } from "../repositories/user.repository";
-import { Role } from "../enums/role.enum";
 
 export class UserDAO {
   private userRepository: Repository<User>;

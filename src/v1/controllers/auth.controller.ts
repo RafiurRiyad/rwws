@@ -14,7 +14,6 @@ import {
   sendPasswordResetEmail,
   sendSignUpEmail,
 } from "../utilities/emailSender.utility";
-import { sign } from "crypto";
 
 const userDAO = new UserDAO();
 
@@ -339,9 +338,9 @@ const resetPassword = async (
     }
 
     /**
-     * * Check if tempPass matches the stored tempPass in the database
+     * * Check if tempPass matches the stored temp_pass in the database
      */
-    const isTempPassValid = tempPass === userInfo.tempPass;
+    const isTempPassValid = tempPass === userInfo.temp_pass;
     Logger.debug("resetPassword-isTempPassValid: %s", isTempPassValid);
 
     if (!isTempPassValid) {
