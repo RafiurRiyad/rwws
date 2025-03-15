@@ -1,5 +1,4 @@
 import { RwwsDBConfig } from "./../configs/db.config";
-import "reflect-metadata";
 import { DataSource } from "typeorm";
 import { User } from "../entities/user.entity";
 
@@ -13,7 +12,6 @@ export const RwwsDataSource = new DataSource({
   synchronize: RwwsDBConfig.synchronize,
   logging: RwwsDBConfig.logging,
   entities: [User],
-  subscribers: [],
   ssl: {
     rejectUnauthorized: false, // Set to true if you have a trusted certificate
   },
