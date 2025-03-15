@@ -27,16 +27,15 @@ export const VerifyJwtToken = async (
     const decodedToken = jwt.verify(token, AppConfig.jwtSecret);
     res.locals.userId = (decodedToken as JwtPayload).id;
 
-        const 
-        const user = await new UserDAO().findOneById(res.locals.userId);
-        if (!user) {
-            throw new UnauthorizedError(
-                "VerifyJwtToken-check-user",
-                "Malformed token or user does not exist",
-                4005
-            );
-        }
-        res.locals.user = user;
+    const user = await new UserDAO().findOneById(res.locals.userId);
+    if (!user) {
+      throw new UnauthorizedError(
+        "VerifyJwtToken-check-user",
+        "Malformed token or user does not exist",
+        4005
+      );
+    }
+    res.locals.user = user;
 
     next(); // Proceed to the next middleware or route handler
   } catch (error: any) {
