@@ -3,6 +3,7 @@ import { DataSource } from "typeorm";
 import { User } from "../entities/user.entity";
 import { News } from "../entities/news.entity";
 import { Category } from "../entities/category.entity";
+import { Story } from "../entities/story.entity";
 
 export const RwwsDataSource = new DataSource({
   type: "postgres",
