@@ -69,11 +69,8 @@ dist
 # TernJS port file
 .tern-port
 
-# ingnore data dump for cmopose
+# ingnore data dump for compose
 data-dump/
 
 #ignore the todo file if any
 TODO
-
-#ignore assets
-public/*
