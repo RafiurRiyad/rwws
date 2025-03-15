@@ -14,7 +14,7 @@ export const RwwsDataSource = new DataSource({
   synchronize: RwwsDBConfig.synchronize,
   logging: RwwsDBConfig.logging,
   entities: [User, News, Category],
-  // ssl: {
-  //   rejectUnauthorized: false, // Set to true if you have a trusted certificate
-  // },
+  ssl: {
+    rejectUnauthorized: false, // Set to true if you have a trusted certificate
+  },
 });
