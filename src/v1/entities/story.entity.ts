@@ -1,17 +1,17 @@
 import {
-    Column,
-    CreateDateColumn,
     Entity,
-    JoinColumn,
-    ManyToOne,
     PrimaryGeneratedColumn,
+    Column,
+    ManyToOne,
+    JoinColumn,
+    CreateDateColumn,
     UpdateDateColumn,
 } from "typeorm";
-import { User } from "./user.entity";
 import { Category } from "./category.entity";
+import { User } from "./user.entity";
 
 @Entity()
-export class News {
+export class Story {
     @PrimaryGeneratedColumn()
     id!: bigint;
 
@@ -21,15 +21,21 @@ export class News {
     @Column({ type: "text" })
     excerpt!: string;
 
-    @Column({ type: "varchar", length: 500, nullable: true })
+    @Column({ type: "text" })
+    content!: string;
+
+    @Column({ type: "varchar", nullable: true })
     image!: string;
 
     @Column({ type: "varchar", nullable: true })
     video!: string;
 
-    @ManyToOne(() => Category, { nullable: true })
+    @ManyToOne(() => Category, { nullable: false })
     @JoinColumn({ name: "category_id" })
     category!: Category;
+
+    @Column({ type: "varchar", length: 100 })
+    location!: string;
 
     @ManyToOne(() => User, { nullable: false })
     @JoinColumn({ name: "created_by" })
