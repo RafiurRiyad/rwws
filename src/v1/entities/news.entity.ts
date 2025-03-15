@@ -12,8 +12,8 @@ import { Category } from "./category.entity";
 
 @Entity()
 export class News {
-    @PrimaryGeneratedColumn("uuid")
-    id!: string;
+    @PrimaryGeneratedColumn()
+    id!: bigint;
 
     @Column({ type: "text" })
     title!: string;
@@ -23,6 +23,9 @@ export class News {
 
     @Column({ type: "varchar", length: 500, nullable: true })
     image!: string;
+
+    @Column({ type: "varchar", nullable: true })
+    video!: string;
 
     @ManyToOne(() => Category, { nullable: true })
     @JoinColumn({ name: "category_id" })

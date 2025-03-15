@@ -1,7 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { BadRequestError } from "../errors/badRequest.error";
 import { Success } from "../responses/http.response";
-// import { createNewUser } from "../utilities/user.utility";
 import { NewsDAO } from "../dao/news.dao";
 import { News } from "../entities/news.entity";
 import {

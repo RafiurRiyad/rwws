@@ -21,6 +21,7 @@ export const generateNewsEntityObject = async (requestBodyObj: any): Promise<New
     news.title = requestBodyObj.title;
     news.excerpt = requestBodyObj.excerpt;
     news.image = requestBodyObj.image;
+    news.video = requestBodyObj.video;
     news.createdBy = requestBodyObj.current_user;
     news.category = category;
 
@@ -46,6 +47,7 @@ export const generateUpdatedNewsEntityObject = async (
     news.title = updatedRequestBody.title;
     news.excerpt = updatedRequestBody.excerpt;
     news.image = updatedRequestBody.image;
+    news.video = updatedRequestBody.video;
     news.category = category;
 
     return news;

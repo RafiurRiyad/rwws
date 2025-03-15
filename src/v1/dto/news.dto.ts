@@ -1,10 +1,11 @@
 import { News } from "../entities/news.entity";
 
 export class NewsDTO {
-    id: string;
+    id: bigint;
     title: string;
     excerpt: string;
     image: string;
+    video: string;
     created_by: string;
     category_id: bigint;
     category_name: string;
@@ -18,6 +19,7 @@ export class NewsDTO {
         this.title = news.title;
         this.excerpt = news.excerpt;
         this.image = news.image;
+        this.video = news.video;
         this.created_by = news.createdBy ? news.createdBy.username : "";
         this.created_at = news.created_at;
         this.updated_at = news.updated_at;
