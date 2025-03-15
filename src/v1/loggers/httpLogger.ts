@@ -20,7 +20,7 @@ export const HttpLogger = morgan(JSON.stringify(format), {
     write: (message: string) => {
       const { method, url, status, resContentLength, responseTime } =
         JSON.parse(message);
-      if (url !== "/v1/health" && url !== "/favicon.ico")
+      if (url !== "/v1/health")
         Logger.info("HTTP-Request-Log", {
           timestamp: new Date(),
           method,
