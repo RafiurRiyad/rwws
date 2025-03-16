@@ -6,7 +6,7 @@ import { VerifyJwtToken } from "../middlewares/verifyJwtToken.middleware";
 
 const newsRouter = Router();
 
-newsRouter.get("/", VerifyJwtToken, newsController.getAll);
+newsRouter.get("/", newsController.getAll);
 newsRouter.post(
     "/",
     [VerifyJwtToken, Upload.single("image"), ValidateNewsRequestBody],
@@ -18,7 +18,7 @@ newsRouter.put(
     newsController.updateOne
 );
 
-newsRouter.get("/:newsId", VerifyJwtToken, newsController.getOne);
+newsRouter.get("/:newsId", newsController.getOne);
 newsRouter.delete("/:newsId", VerifyJwtToken, newsController.deleteOne);
 
 export const NewsRouter = newsRouter;
