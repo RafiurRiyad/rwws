@@ -13,7 +13,6 @@ export class User {
   id!: bigint;
 
   @Column({ type: "varchar", length: 200, unique: true })
-  @Index()
   email!: string;
 
   @Column({ type: "varchar", nullable: true })
