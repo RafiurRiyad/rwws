@@ -57,10 +57,12 @@ export const generateRandomValidPassword = (): Promise<string> => {
             password += allChars[Math.floor(Math.random() * allChars.length)];
         }
 
-        return password
-            .split("")
-            .sort(() => 0.5 - Math.random())
-            .join(""); // shuffle to avoid predictable pattern
+        resolve(
+            password
+                .split("")
+                .sort(() => 0.5 - Math.random())
+                .join("")
+        ); // shuffle to avoid predictable pattern
     });
 };
 

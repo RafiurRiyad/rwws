@@ -6,9 +6,10 @@ import { Category } from "../entities/category.entity";
 import { Story } from "../entities/story.entity";
 
 export const RwwsDataSource = new DataSource({
-    type: "postgres",
+    type: "mysql",
     host: RwwsDBConfig.host,
     port: RwwsDBConfig.port,
+    driver: require("mysql2"),
     username: RwwsDBConfig.username,
     password: RwwsDBConfig.password,
     database: RwwsDBConfig.database,
