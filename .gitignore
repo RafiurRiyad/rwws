@@ -74,3 +74,6 @@ data-dump/
 
 #ignore the todo file if any
 TODO
+
+#ignore public folder assets
+public/*
