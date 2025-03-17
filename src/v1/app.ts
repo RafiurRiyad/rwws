@@ -5,7 +5,7 @@ import bodyParser from "body-parser";
 import cors from "cors";
 import SwaggerUI from "swagger-ui-express";
 
-import { AuthRoutes, NewsRoutes, StoryRoutes } from "./routes";
+import { AuthRoutes, NewsRoutes, ProgramRoutes, StoryRoutes } from "./routes";
 import { InitiateRwwsDataSourcePluginConnection } from "./plugins/datasource.plugin";
 import { HttpLogger } from "./loggers/httpLogger";
 import { AppConfig } from "./configs/app.config";
@@ -55,6 +55,7 @@ app.get(`${baseRoute}/health`, (req, res) => {
 app.use(`${baseRoute}/auth`, AuthRoutes);
 app.use(`${baseRoute}/news`, NewsRoutes);
 app.use(`${baseRoute}/story`, StoryRoutes);
+app.use(`${baseRoute}/program`, ProgramRoutes);
 
 /**
  * * Route injection for swagger documentation
