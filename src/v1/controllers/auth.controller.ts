@@ -1,7 +1,10 @@
 import { NextFunction, Request, Response } from "express";
 import { Logger } from "../loggers/logger";
 import { BadRequestError } from "../errors/badRequest.error";
-import { tokenGenerator } from "../helpers/tokenGenerator.helper";
+import {
+  getAccessTokenIat,
+  tokenGenerator,
+} from "../helpers/tokenGenerator.helper";
 import { UserDAO } from "../dao/user.dao";
 import { Success } from "../responses/http.response";
 import {
@@ -138,6 +141,14 @@ const signIn = async (req: Request, res: Response, next: NextFunction) => {
 
     const tokenResponse = await tokenGenerator(userInfo);
 
+    const iat = await getAccessTokenIat(tokenResponse.data.access_token);
+
+    /**
+     * * update the iat in the database
+     */
+    userInfo.iat = iat;
+    await userDAO.save(userInfo);
+
     return Success(res, {
       message: "login successful",
       data: sanitizeLoginTokenResponse(tokenResponse),
@@ -150,32 +161,49 @@ const signIn = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-// const signOut = async (req: Request, res: Response, next: NextFunction) => {
-//   try {
-//     const token = req.headers["authorization"]?.split(" ")[1]; // Get the token from the Authorization header
+const signOut = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    /**
+     * * Retrieve the user from res.locals (set by the token verification middleware)
+     */
+    const user = res.locals.user;
 
-//     if (!token) {
-//       throw new BadRequestError(
-//         "signOut-no-token",
-//         "No token provided, please log in",
-//         3003
-//       );
-//     }
+    /**
+     * * If no user is found, throw a BadRequestError
+     * @function BadRequestError
+     * @param {origin, message, code}
+     */
+    if (!user) {
+      throw new BadRequestError(
+        "signOut-user-not-found",
+        "User not found, please log in",
+        3003
+      );
+    }
 
-//     // Call the invalidateSession method with the token from header
-//     const result = await invalidateToken(token, "your-secret-key");
+    /**
+     * * Remove iat from user entity and update the user
+     */
+    user.iat = null;
+    await userDAO.save(user);
 
-//     return Success(res, {
-//       message: "sign out successful",
-//       data: null,
-//     });
-//   } catch (error: any) {
-//     error.origin = error.origin ? error.origin : "signOut-base-error";
-//     error.message = error.message ? error.message : "SignOut error";
-//     error.code = error.code ? error.code : 3004;
-//     next(error);
-//   }
-// };
+    /**
+     * * Send success response
+     */
+    return Success(res, {
+      message: "Sign out successful",
+      data: null,
+    });
+  } catch (error: any) {
+    /**
+     * * Handle error
+     */
+    error.origin = error.origin ? error.origin : "signOut-base-error";
+    error.message = error.message ? error.message : "SignOut error";
+    error.code = error.code ? error.code : 3004;
+    next(error);
+  }
+};
 
 const changePassword = async (
   req: Request,
@@ -198,7 +226,7 @@ const changePassword = async (
      * @function BadRequestError
      * @param {origin, message, code}
      */
-  const userInfo = await userDAO.findOneById(userId);
+    const userInfo = await userDAO.findOneById(userId);
     Logger.debug("changePassword-userInfo: %s", userInfo);
     if (!userInfo) {
       throw new BadRequestError(
@@ -376,11 +404,51 @@ const resetPassword = async (
   }
 };
 
+const refreshToken = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    /**
+     * * Validate refresh token in middleware, no further validation needed here
+     * * res.locals.userId is set after token validation in middleware
+     */
+    const user = res.locals.user;
+    const tokenResponse = await tokenGenerator(user);
+
+    const iat = await getAccessTokenIat(tokenResponse.data.access_token);
+
+    /**
+     * * update the iat in the database
+     */
+    user.iat = iat;
+    await userDAO.save(user);
+
+    /**
+     * * Return new access and refresh tokens
+     */
+    return Success(res, {
+      message: "Token refreshed successfully",
+      data: sanitizeLoginTokenResponse(tokenResponse),
+    });
+  } catch (error: any) {
+    /**
+     * * Handle any errors during token generation or refresh process
+     */
+    error.origin = error.origin ? error.origin : "refreshToken-base-error";
+    error.message = error.message ? error.message : "Token refresh error";
+    error.code = error.code ? error.code : 3000;
+    next(error);
+  }
+};
+
 export const authController = {
   signUp,
   signIn,
-  // signOut,
+  signOut,
   changePassword,
   forgotPassword,
   resetPassword,
+  refreshToken,
 };

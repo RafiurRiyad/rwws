@@ -2,7 +2,6 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  Index,
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { PasswordUtility } from "./../utilities/password.utility";
@@ -23,6 +22,9 @@ export class User {
 
   @Column({ type: "varchar", nullable: true })
   temp_pass!: string | null;
+
+  @Column({ type: "int", nullable: true })
+  iat!: number | null;
 
   @CreateDateColumn({ type: "timestamp" })
   created_at!: Date;

@@ -6,6 +6,7 @@ import { ValidateChangePasswordRequestBody } from "../middlewares/validateChange
 import { ValidateForgotPasswordRequestBody } from "../middlewares/validateForgotPasswordRequestBody.middleware";
 import { ValidateSignUpRequestBody } from "../middlewares/validateSignupRequestBody.middleware";
 import { ValidateResetPasswordRequestBody } from "../middlewares/validateResetPasswordRequestBody.middleware";
+import { VerifyRefreshToken } from "../middlewares/verifyRefreshToken.middleware";
 
 const authRouter = Router();
 
@@ -18,6 +19,11 @@ authRouter.post("/signup", [ValidateSignUpRequestBody], authController.signUp);
  * * user sign in route
  */
 authRouter.post("/signin", [ValidateSignInRequestBody], authController.signIn);
+
+/**
+ * * user logout route
+ */
+authRouter.post("/logout", [VerifyJwtToken], authController.signOut);
 
 /**
  * * user change password route (requires JWT token)
@@ -47,4 +53,12 @@ authRouter.post(
   authController.resetPassword
 );
 
+/**
+ * * user refresh token route
+ */
+authRouter.post(
+  "/refresh-token",
+  [VerifyRefreshToken],
+  authController.refreshToken
+);
 export const AuthRouter = authRouter;

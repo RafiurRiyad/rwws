@@ -22,5 +22,5 @@ export const ForgotPasswordRequestBody = Joi.object({
 
 export const ResetPasswordRequestBody = Joi.object({
   email: Joi.string().email().max(200).required(),
-  temp_pass: Joi.string().min(8).max(200).required(),
+  tempPass: Joi.string().min(8).max(200).required(),
 });
