@@ -7,7 +7,7 @@ import { ValidateCreateProgramRequestBody as ValidateProgramRequestBody } from "
 const programRouter = Router();
 
 programRouter.get("/", programController.getAll);
-programRouter.get("/:programId", programController.getOne);
+programRouter.get("/:homeId", programController.getOne);
 
 programRouter.post(
     "/",
@@ -15,11 +15,11 @@ programRouter.post(
     programController.createOne
 );
 programRouter.put(
-    "/:programId",
+    "/:homeId",
     [VerifyJwtToken, Upload.single("image"), ValidateProgramRequestBody],
     programController.updateOne
 );
 
-programRouter.delete("/:programId", VerifyJwtToken, programController.deleteOne);
+programRouter.delete("/:homeId", VerifyJwtToken, programController.deleteOne);
 
 export const ProgramRouter = programRouter;

@@ -5,7 +5,6 @@ import { ProgramLocation } from "../entities/programLocation.entity";
 import { CategoryType } from "../enums/categoryType.enum";
 import { BadRequestError } from "../errors/badRequest.error";
 import { CategoryRepository } from "../repositories/category.repository";
-import { ProgramRepository } from "../repositories/program.repository";
 import { ProgramAchivementRepository } from "../repositories/programAchievement.repository";
 import { ProgramGoalRepository } from "../repositories/programGoal.repository";
 import { ProgramLocationRepository } from "../repositories/programLocation.repository";
