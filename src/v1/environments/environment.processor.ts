@@ -36,4 +36,7 @@ export const parsedEnvironment = {
 
   // JWT variables
   JWT_SECRET: process.env.JWT_SECRET as string,
+
+  // File size
+  FILE_SIZE: process.env.FILE_SIZE as string,
 };

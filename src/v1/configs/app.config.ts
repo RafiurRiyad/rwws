@@ -14,6 +14,7 @@ const {
   EMAIL_USER,
   EMAIL_PASSWORD,
   EMAIL_FROM,
+  FILE_SIZE,
 } = environment;
 
 export const AppConfig = {
@@ -30,4 +31,5 @@ export const AppConfig = {
   emailUser: EMAIL_USER,
   emailPassword: EMAIL_PASSWORD,
   emailFrom: EMAIL_FROM,
+  fileSize: FILE_SIZE,
 };
