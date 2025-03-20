@@ -144,20 +144,20 @@ export const updateOne = async (req: Request, res: Response, next: NextFunction)
             const heroImageFile = (req.files as any)["hero_image"][0];
 
             unlinkImageAsset(homeContent.hero_image);
-
             updateRequest.hero_image = path.join("/uploads/", heroImageFile.filename);
         } else {
             updateRequest.hero_image = homeContent.hero_image;
         }
 
         const newHomeAssets: HomeAsset[] = [];
+
         if (req.files && (req.files as any)["images"]) {
             const oldImagesPath = (homeContent.assets || [])
                 .filter(asset => asset && asset.type === "image" && asset.url)
                 .map(asset => asset.url);
 
             oldImagesPath.forEach(unlinkImageAsset);
-            await HomeAssetRepository.delete({ home: homeContent });
+            await HomeAssetRepository.delete({ home: homeContent, type: "image" });
 
             const newImages = (req.files as any)["images"];
             newImages.forEach((img: any) => {
@@ -169,25 +169,35 @@ export const updateOne = async (req: Request, res: Response, next: NextFunction)
 
                 newHomeAssets.push(imageHomeAsset);
             });
+        } else {
+            newHomeAssets.push(...homeContent.assets.filter(asset => asset.type === "image"));
         }
 
-        if (updateRequest.video_urls.length) {
-            updateRequest.video_urls.forEach((video: string) => {
-                const newVideoEntities = HomeAssetRepository.create({
-                    home: homeContent,
-                    url: video,
-                    type: "video",
+        if (updateRequest.video_urls) {
+            await HomeAssetRepository.delete({ home: homeContent, type: "video" });
+
+            if (updateRequest.video_urls.length > 0) {
+                updateRequest.video_urls.forEach((video: string) => {
+                    const newVideoEntities = HomeAssetRepository.create({
+                        home: homeContent,
+                        url: video,
+                        type: "video",
+                    });
+
+                    newHomeAssets.push(newVideoEntities);
                 });
-
-                newHomeAssets.push(newVideoEntities);
-            });
+            }
+        } else {
+            newHomeAssets.push(...homeContent.assets.filter(asset => asset.type === "video"));
         }
+
         updateRequest.newHomeAssets = newHomeAssets;
 
         const updatedHomeContentObject = generateHomeContentEntityUpdateObject(
             updateRequest,
             homeContent
         );
+
         const updatedHomeContent = await homeContentDao.save(updatedHomeContentObject);
 
         const contentDTO = new HomeContentDTO(updatedHomeContent!, updatedHomeContent!.assets);
