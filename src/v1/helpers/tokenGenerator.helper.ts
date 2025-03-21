@@ -16,7 +16,7 @@ export const tokenGenerator = async (
       },
       AppConfig.jwtSecret,
       {
-        // expiresIn: '1m'
+        expiresIn: "1h", // Set expiration to 1 hour
       }
     );
 
@@ -28,7 +28,7 @@ export const tokenGenerator = async (
       },
       AppConfig.jwtSecret,
       {
-        // expiresIn: '7d'
+        expiresIn: "3d", // Set expiration to 3 days
       }
     );
 
@@ -45,6 +45,24 @@ export const tokenGenerator = async (
       "token-generation-failed",
       "Token generation failed",
       3000
+    );
+  }
+};
+
+export const getAccessTokenIat = async (
+  accessToken: string
+): Promise<number | null> => {
+  try {
+    // Decode the token to extract 'iat'
+    const decodedAccessToken = jwt.decode(accessToken) as jwt.JwtPayload;
+
+    // Return the 'iat' value if it exists
+    return decodedAccessToken.iat ? decodedAccessToken.iat : null;
+  } catch (error) {
+    throw new InternalServerError(
+      "token-iat-extraction-failed",
+      "Failed to extract 'iat' from token",
+      3001
     );
   }
 };

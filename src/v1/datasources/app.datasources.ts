@@ -8,6 +8,8 @@ import { Program } from "../entities/program.entity";
 import { ProgramLocation } from "../entities/programLocation.entity";
 import { ProgramGoal } from "../entities/programGoal.entity";
 import { ProgramAchievement } from "../entities/programAchievement.entity";
+import { HomeContent } from "../entities/homeContent.entity";
+import { HomeAsset } from "../entities/homeAsset.entity";
 
 export const RwwsDataSource = new DataSource({
   type: "mysql",
@@ -28,6 +30,8 @@ export const RwwsDataSource = new DataSource({
     ProgramLocation,
     ProgramGoal,
     ProgramAchievement,
+    HomeContent,
+    HomeAsset
   ],
   ssl: {
     rejectUnauthorized: false, // Set to true if you have a trusted certificate
