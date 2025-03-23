@@ -3,7 +3,7 @@ import { AppConfig } from "./src/v1/configs/app.config";
 import { Logger } from "./src/v1/loggers/logger";
 import { DestroyRwwsDataSourcePluginConnection } from "./src/v1/plugins/datasource.plugin";
 
-const { port, host, environment } = AppConfig;
+const { host, environment } = AppConfig;
 
 /**
  * * Export the Express app directly for Vercel to handle
@@ -15,11 +15,10 @@ export default App;
  * * This will only run when deployed in environments where Vercel is not handling the server (local environments).
  */
 if (process.env.NODE_ENV !== "production") {
-  App.listen(Number(port), host, () => {
+  App.listen(host, () => {
     Logger.debug("Express is running on →");
     console.table({
       host: host,
-      port: port,
       environment: environment,
     });
   });

@@ -31,9 +31,6 @@ export const RwwsDataSource = new DataSource({
     ProgramGoal,
     ProgramAchievement,
     HomeContent,
-    HomeAsset
+    HomeAsset,
   ],
-  ssl: {
-    rejectUnauthorized: false, // Set to true if you have a trusted certificate
-  },
 });
